@@ -27,7 +27,7 @@
 //
 // The latter two versions are efficient and practical for use.
 
-use crate::reduced::{impl_reduced_binary_pow, Vanilla};
+use crate::reduced::{Vanilla, impl_reduced_binary_pow};
 use crate::{DivExact, ModularUnaryOps, Reducer};
 
 /// Divide a Word by a prearranged divisor.
@@ -111,11 +111,7 @@ macro_rules! impl_premulinv_1by1_for {
             #[inline]
             fn div_exact(self, d: $T, pre: &PreMulInv1by1<$T>) -> Option<Self::Output> {
                 let (q, r) = pre.div_rem(self, d);
-                if r == 0 {
-                    Some(q)
-                } else {
-                    None
-                }
+                if r == 0 { Some(q) } else { None }
             }
         }
     };
@@ -600,19 +596,19 @@ mod tests {
         type Word = u64;
         let mut rng = StdRng::seed_from_u64(1);
         for _ in 0..400000 {
-            let d_bits = rng.gen_range(2..=Word::BITS);
+            let d_bits = rng.random_range(2..=Word::BITS);
             let max_d = Word::MAX >> (Word::BITS - d_bits);
-            let d = rng.gen_range(max_d / 2 + 1..=max_d);
+            let d = rng.random_range(max_d / 2 + 1..=max_d);
             let fast_div = PreMulInv1by1::<Word>::new(d);
-            let n = rng.gen();
+            let n = rng.random();
             let (q, r) = fast_div.div_rem(n, d);
             assert_eq!(q, n / d);
             assert_eq!(r, n % d);
 
             if r == 0 {
-                assert_eq!(n.div_exact(d, &fast_div), Some(q));
+                assert_eq!(DivExact::div_exact(n, d, &fast_div), Some(q));
             } else {
-                assert_eq!(n.div_exact(d, &fast_div), None);
+                assert_eq!(DivExact::div_exact(n, d, &fast_div), None);
             }
         }
     }
@@ -628,9 +624,9 @@ mod tests {
 
         let mut rng = StdRng::seed_from_u64(1);
         for _ in 0..200000 {
-            let d = rng.gen_range(Word::MAX / 2 + 1..=Word::MAX);
-            let q = rng.gen();
-            let r = rng.gen_range(0..d);
+            let d = rng.random_range(Word::MAX / 2 + 1..=Word::MAX);
+            let q = rng.random();
+            let r = rng.random_range(0..d);
             let (a0, a1) = split(wmul(q, d) + extend(r));
             let fast_div = Divider::new(d);
             assert_eq!(fast_div.div_rem_2by1(merge(a0, a1)), (q, r));
@@ -650,9 +646,9 @@ mod tests {
 
         let mut rng = StdRng::seed_from_u64(1);
         for _ in 0..100000 {
-            let d = rng.gen_range(DoubleWord::MAX / 2 + 1..=DoubleWord::MAX);
-            let r = rng.gen_range(0..d);
-            let q = rng.gen();
+            let d = rng.random_range(DoubleWord::MAX / 2 + 1..=DoubleWord::MAX);
+            let r = rng.random_range(0..d);
+            let q = rng.random();
 
             let (d0, d1) = split(d);
             let (r0, r1) = split(r);
@@ -680,9 +676,9 @@ mod tests {
 
         let mut rng = StdRng::seed_from_u64(1);
         for _ in 0..20000 {
-            let d = rng.gen_range(DoubleWord::MAX / 2 + 1..=DoubleWord::MAX);
-            let q = rng.gen();
-            let r = rng.gen_range(0..d);
+            let d = rng.random_range(DoubleWord::MAX / 2 + 1..=DoubleWord::MAX);
+            let q = rng.random();
+            let r = rng.random_range(0..d);
             let (a_lo, a_hi) = split(wmul(q, d) + r as DoubleWord);
             let fast_div = Divider::new(d);
             assert_eq!(fast_div.div_rem_4by2(a_lo, a_hi), (q, r));

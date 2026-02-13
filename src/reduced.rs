@@ -1,4 +1,4 @@
-use crate::{udouble, ModularInteger, ModularUnaryOps, Reducer};
+use crate::{ModularInteger, ModularUnaryOps, Reducer, udouble};
 use core::ops::*;
 #[cfg(feature = "num-traits")]
 use num_traits::{Inv, Pow};
@@ -462,22 +462,52 @@ pub(crate) mod tests {
 
     pub(crate) struct ReducedTester<T>(PhantomData<T>);
 
+    pub(crate) trait TestRandom {
+        fn test_random() -> Self;
+    }
+
+    macro_rules! impl_test_random_fixed {
+        ($($T:ty)*) => ($(
+            impl TestRandom for $T {
+                fn test_random() -> Self { random() }
+            }
+        )*);
+    }
+    impl_test_random_fixed!(u8 u16 u32 u64 u128);
+
+    impl TestRandom for usize {
+        fn test_random() -> Self {
+            #[cfg(target_pointer_width = "64")]
+            {
+                random::<u64>() as usize
+            }
+            #[cfg(target_pointer_width = "32")]
+            {
+                random::<u32>() as usize
+            }
+            #[cfg(target_pointer_width = "16")]
+            {
+                random::<u16>() as usize
+            }
+        }
+    }
+
     macro_rules! impl_reduced_test_for {
         ($($T:ty)*) => {$(
-            impl ReducedTester<$T> {
+            impl ReducedTester<$T> where $T: TestRandom {
                 /// Range of modulus:
                 /// - random_mode = 0: [1, $T::MAX]
                 /// - random_mode = 1: [1, $T::MAX] and odd
                 /// - random_mode = 2: [$T::MAX >> $T::BITS/2, $T::MAX]
                 pub fn test_against_modops<R: Reducer<$T> + Copy>(random_mode: i32) {
                     let m = match random_mode {
-                        0 => random::<$T>().saturating_add(1),
-                        1 => random::<$T>().saturating_add(1) | 1,
-                        2 => random::<$T>().saturating_add(1 << (<$T>::BITS / 2)),
+                        0 => <$T>::test_random().saturating_add(1),
+                        1 => <$T>::test_random().saturating_add(1) | 1,
+                        2 => <$T>::test_random().saturating_add(1 << (<$T>::BITS / 2)),
                         _ => unreachable!()
                     };
 
-                    let (a, b) = (random::<$T>(), random::<$T>());
+                    let (a, b) = (<$T>::test_random(), <$T>::test_random());
                     let am = ReducedInt::<$T, R>::new(a, &m);
                     let bm = ReducedInt::<$T, R>::new(b, &m);
                     assert_eq!((am + bm).residue(), a.addm(b, &m), "incorrect add");

@@ -82,13 +82,17 @@ pub fn bench_mul(c: &mut Criterion) {
 
     #[cfg(feature = "crypto-bigint")]
     {
-        use crypto_bigint::{Split, U128, U256};
+        use crypto_bigint::{U128, U256};
         group.bench_function("crypto-bigint", |b| {
             b.iter(|| {
                 lhs.iter()
                     .zip(rhs.iter())
                     .map(|(&a, &b)| U256::from(a).saturating_mul(&U256::from(b)))
-                    .reduce(|a, b| U256::from((U128::ZERO, a.split().0.wrapping_add(&b.split().0))))
+                    .reduce(|a: U256, b: U256| {
+                        let (a_lo, _): (U128, U128) = a.split();
+                        let (b_lo, _): (U128, U128) = b.split();
+                        U128::ZERO.concat(&a_lo.wrapping_add(&b_lo))
+                    })
             })
         });
     }
@@ -189,18 +193,21 @@ pub fn bench_div(c: &mut Criterion) {
 
     #[cfg(feature = "crypto-bigint")]
     {
-        use crypto_bigint::{Split, U128, U256};
+        use crypto_bigint::{NonZero, U128, U256};
         group.bench_function("crypto-bigint", |b| {
             b.iter(|| {
                 lhs.iter()
                     .zip(rhs.iter())
                     .map(|(&a, &b)| {
-                        ((U256::from(a.0) << 128).wrapping_add(&U256::from(a.1)))
-                            .div_rem(&U256::from(b))
-                            .unwrap()
-                            .0
+                        let val: U256 = U256::from(a.0).shl(128u32).wrapping_add(&U256::from(a.1));
+                        let divisor = NonZero::new(U256::from(b)).unwrap();
+                        val.div_rem(&divisor).0
                     })
-                    .reduce(|a, b| U256::from((U128::ZERO, a.split().0.wrapping_add(&b.split().0))))
+                    .reduce(|a: U256, b: U256| {
+                        let (a_lo, _): (U128, U128) = a.split();
+                        let (b_lo, _): (U128, U128) = b.split();
+                        U128::ZERO.concat(&a_lo.wrapping_add(&b_lo))
+                    })
             })
         });
     }

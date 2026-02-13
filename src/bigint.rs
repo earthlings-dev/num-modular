@@ -143,11 +143,7 @@ mod _num_bigint {
         #[inline]
         fn negm(self, m: &BigUint) -> BigUint {
             let x = self % m;
-            if x.is_zero() {
-                BigUint::zero()
-            } else {
-                m - x
-            }
+            if x.is_zero() { BigUint::zero() } else { m - x }
         }
 
         fn invm(self, m: &BigUint) -> Option<Self::Output> {
@@ -178,11 +174,7 @@ mod _num_bigint {
         fn dblm(self, m: &BigUint) -> BigUint {
             let x = self % m;
             let d = x << 1;
-            if &d > m {
-                d - m
-            } else {
-                d
-            }
+            if &d > m { d - m } else { d }
         }
 
         #[inline]

@@ -7,8 +7,8 @@ use rand::random;
 pub fn bench_u128(c: &mut Criterion) {
     const N: usize = 256;
     let mut cases: [(u128, u128, u128); N] = [(0, 0, 0); N];
-    for i in 0..N {
-        cases[i] = (random(), random(), random());
+    for case in &mut cases {
+        *case = (random(), random(), random());
     }
 
     let mut group = c.benchmark_group("u128 modular ops");
@@ -91,18 +91,14 @@ pub fn bench_modinv(c: &mut Criterion) {
     group.bench_function("mersenne + extended gcd", |b| {
         b.iter(|| {
             (1_000_000_000u128..1_000_000_300u128)
-                .map(|n| {
-                    FixedMersenneInt::<94, 3>::new(n, &(M2 as u128))
-                        .inv()
-                        .unwrap()
-                })
+                .map(|n| FixedMersenneInt::<94, 3>::new(n, &{ M2 }).inv().unwrap())
                 .reduce(|a, b| a + b)
         })
     });
     group.bench_function("mersenne + fermat theorem", |b| {
         b.iter(|| {
             (1_000_000_000u128..1_000_000_300u128)
-                .map(|n| FixedMersenneInt::<94, 3>::new(n, &(M2 as u128)).pow(&(M2 - 2)))
+                .map(|n| FixedMersenneInt::<94, 3>::new(n, &{ M2 }).pow(&(M2 - 2)))
                 .reduce(|a, b| a + b)
         })
     });

@@ -1,7 +1,8 @@
 [package]
 name = "num-modular"
 version = "0.6.1"
-edition = "2018"
+edition = "2024"
+rust-version = "1.93.0"
 
 repository = "https://github.com/cmpute/num-modular"
 keywords = ["mathematics", "numeric", "number-theory", "modular", "montgomery"]
@@ -13,24 +14,35 @@ Implementation of efficient integer division and modular arithmetic operations w
 Supports various backends including num-bigint, etc..
 """
 readme = "README.md"
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-num-integer = { version = "0.1.44", optional = true }
-num-traits = { version = "0.2.14", optional = true }
-
-[dependencies.num-bigint]
-optional = true
-version = "0.4.3"
-default-features = false
+num-integer = { workspace = true, optional = true }
+num-traits = { workspace = true, optional = true }
+num-bigint = { workspace = true, optional = true }
 
 [dev-dependencies]
-rand = "0.8.4"
+rand = { workspace = true }
 
 [workspace]
 members = [
   "bench",
 ]
+
+[workspace.dependencies]
+num-integer = { version = "0.1.46" }
+num-traits = { version = "0.2.19" }
+num-bigint = { version = "0.4.6", default-features = false }
+rand = "0.10.0"
+crypto-bigint = { version = "0.7.0-rc.27" }
+criterion = "0.8"
+num-modular = { version = "0.6.1", path = "." }
+
+[patch.crates-io]
+num-bigint = { git = "https://github.com/earthlings-dev/num-bigint" }
+rand = { git = "https://github.com/earthlings-dev/rand" }
+rand_core = { git = "https://github.com/earthlings-dev/rand_core" }
+getrandom = { git = "https://github.com/earthlings-dev/getrandom" }
+crypto-bigint = { git = "https://github.com/earthlings-dev/rustcrypto-crypto-bigint" }
 
 [package.metadata.docs.rs]
 all-features = true

@@ -1,5 +1,5 @@
 use crate::reduced::impl_reduced_binary_pow;
-use crate::{udouble, umax, ModularUnaryOps, Reducer};
+use crate::{ModularUnaryOps, Reducer, udouble, umax};
 
 // FIXME: use unchecked operators to speed up calculation (after https://github.com/rust-lang/rust/issues/85122)
 /// A modular reducer for (pseudo) Mersenne numbers `2^P - K` as modulus. It supports `P` up to 127 and `K < 2^(P-1)`

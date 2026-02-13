@@ -53,11 +53,7 @@ macro_rules! impl_preinv_for_prim_int {
                 fn div_exact(self, d: $t, pre: &PreModInv<$t>) -> Option<Self> {
                     pre.debug_check(d);
                     let q = self.wrapping_mul(pre.d_inv);
-                    if q <= pre.q_lim {
-                        Some(q)
-                    } else {
-                        None
-                    }
+                    if q <= pre.q_lim { Some(q) } else { None }
                 }
             }
 
@@ -113,60 +109,76 @@ mod tests {
             let pre: PreModInv<_> = d.into();
 
             let n: u8 = random();
-            let expect = if n % d == 0 { Some(n / d) } else { None };
-            assert_eq!(n.div_exact(d, &pre), expect, "{} / {}", n, d);
+            let expect = if n.is_multiple_of(d) {
+                Some(n / d)
+            } else {
+                None
+            };
+            assert_eq!(DivExact::div_exact(n, d, &pre), expect, "{} / {}", n, d);
             let n: u16 = random();
-            let expect = if n % (d as u16) == 0 {
+            let expect = if n.is_multiple_of(d as u16) {
                 Some(n / (d as u16))
             } else {
                 None
             };
-            assert_eq!(n.div_exact(d, &pre), expect, "{} / {}", n, d);
+            assert_eq!(DivExact::div_exact(n, d, &pre), expect, "{} / {}", n, d);
 
             // u16 test
             let d = random::<u16>() | 1;
             let pre: PreModInv<_> = d.into();
 
             let n: u16 = random();
-            let expect = if n % d == 0 { Some(n / d) } else { None };
-            assert_eq!(n.div_exact(d, &pre), expect, "{} / {}", n, d);
+            let expect = if n.is_multiple_of(d) {
+                Some(n / d)
+            } else {
+                None
+            };
+            assert_eq!(DivExact::div_exact(n, d, &pre), expect, "{} / {}", n, d);
             let n: u32 = random();
-            let expect = if n % (d as u32) == 0 {
+            let expect = if n.is_multiple_of(d as u32) {
                 Some(n / (d as u32))
             } else {
                 None
             };
-            assert_eq!(n.div_exact(d, &pre), expect, "{} / {}", n, d);
+            assert_eq!(DivExact::div_exact(n, d, &pre), expect, "{} / {}", n, d);
 
             // u32 test
             let d = random::<u32>() | 1;
             let pre: PreModInv<_> = d.into();
 
             let n: u32 = random();
-            let expect = if n % d == 0 { Some(n / d) } else { None };
-            assert_eq!(n.div_exact(d, &pre), expect, "{} / {}", n, d);
+            let expect = if n.is_multiple_of(d) {
+                Some(n / d)
+            } else {
+                None
+            };
+            assert_eq!(DivExact::div_exact(n, d, &pre), expect, "{} / {}", n, d);
             let n: u64 = random();
-            let expect = if n % (d as u64) == 0 {
+            let expect = if n.is_multiple_of(d as u64) {
                 Some(n / (d as u64))
             } else {
                 None
             };
-            assert_eq!(n.div_exact(d, &pre), expect, "{} / {}", n, d);
+            assert_eq!(DivExact::div_exact(n, d, &pre), expect, "{} / {}", n, d);
 
             // u64 test
             let d = random::<u64>() | 1;
             let pre: PreModInv<_> = d.into();
 
             let n: u64 = random();
-            let expect = if n % d == 0 { Some(n / d) } else { None };
-            assert_eq!(n.div_exact(d, &pre), expect, "{} / {}", n, d);
+            let expect = if n.is_multiple_of(d) {
+                Some(n / d)
+            } else {
+                None
+            };
+            assert_eq!(DivExact::div_exact(n, d, &pre), expect, "{} / {}", n, d);
             let n: u128 = random();
-            let expect = if n % (d as u128) == 0 {
+            let expect = if n.is_multiple_of(d as u128) {
                 Some(n / (d as u128))
             } else {
                 None
             };
-            assert_eq!(n.div_exact(d, &pre), expect, "{} / {}", n, d);
+            assert_eq!(DivExact::div_exact(n, d, &pre), expect, "{} / {}", n, d);
         }
     }
 }

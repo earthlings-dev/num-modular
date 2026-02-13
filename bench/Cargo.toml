@@ -2,7 +2,8 @@
 name = "num-modular-bench"
 version = "0.0.0"
 publish = false
-edition = "2018"
+edition = "2024"
+rust-version = "1.93.0"
 
 [[bench]]
 name = "modops"
@@ -13,16 +14,16 @@ name = "double"
 harness = false
 
 [dependencies]
-num-integer = "0.1.0"
-num-traits = "0.2.0"
-num-modular = { path = ".." }
-rand = "0.8.4"
-criterion = "0.3"
+num-integer = { workspace = true }
+num-traits = { workspace = true }
+num-modular = { workspace = true }
+rand = { workspace = true }
+criterion = { workspace = true }
 
-ethnum = { version = "1.1.1", optional = true }
-primitive-types = { version = "0.11", optional = true }
-crypto-bigint = { version = "0.3.2", optional = true }
-uint = { version = "0.9.3", optional = true }
+ethnum = { version = "1.5.2", optional = true }
+primitive-types = { version = "0.14", optional = true }
+crypto-bigint = { workspace = true, optional = true }
+uint = { version = "0.10.0", path = "../../paritytech-parity-common/uint", optional = true }
 zkp-u256 = { version = "0.2.1", optional = true }
 
 [features]
