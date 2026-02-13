@@ -2,7 +2,7 @@
 name = "num-modular"
 version = "0.6.1"
 edition = "2024"
-rust-version = "1.93.0"
+rust-version = "1.93"
 
 repository = "https://github.com/cmpute/num-modular"
 keywords = ["mathematics", "numeric", "number-theory", "modular", "montgomery"]
